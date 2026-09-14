@@ -1,0 +1,8 @@
+anthropic
+fastapi
+uvicorn[standard]
+apscheduler
+httpx
+jinja2
+python-dotenv
+passlib[bcrypt]
