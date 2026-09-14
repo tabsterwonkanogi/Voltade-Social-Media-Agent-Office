@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, Form, Request
+from fastapi import APIRouter, BackgroundTasks, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -198,6 +198,37 @@ def set_autonomy(request: Request, name: str, level: str = Form(...)):
         f"{name.capitalize()} now acts on her own." if level == "auto"
         else f"{name.capitalize()} will ask you first.")
     return RedirectResponse("/agents", status_code=303)
+
+
+@router.post("/agents/run")
+def run_now(request: Request, tasks: BackgroundTasks):
+    """Kick the whole chain by hand, without waiting for the clock.
+
+    Runs in the background because the chain takes minutes and a browser will
+    not wait. The kill switch still applies, because every agent goes through
+    the runner and the runner checks it.
+    """
+    user = auth.require(request, auth.CAN_CONFIGURE)
+    db.audit("chain.run_requested", actor=user["name"], surface="web")
+    tasks.add_task(_run_chain)
+    request.session["flash"] = ("The team is working. Refresh in a few "
+                                "minutes and the queue will have something.")
+    return RedirectResponse("/agents", status_code=303)
+
+
+def _run_chain() -> None:
+    from .agents import jim, michael, pam
+    from .scheduler import produce_one
+    try:
+        jim.research()
+        michael.plan()
+        for _ in range(config.POSTS_PER_DAY):
+            if not db.unused_notes("brief", limit=1):
+                break
+            produce_one()
+    except Exception as exc:
+        db.audit("chain.failed", actor="system", surface="system",
+                 detail=f"{type(exc).__name__}: {exc}")
 
 
 # ---------------------------------------------------------------- comments

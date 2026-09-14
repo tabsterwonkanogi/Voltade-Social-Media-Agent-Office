@@ -25,6 +25,14 @@
 </div>
 {% endfor %}
 
+{% if can_configure %}
+<form method="post" action="/agents/run" style="margin-top:20px">
+  <button class="yes" type="submit">Run the team now</button>
+</form>
+<p class="sub" style="margin-top:8px">They run on their own at 07:00, 09:00,
+  13:00 and 17:00. This is for when you do not want to wait.</p>
+{% endif %}
+
 <h1 style="margin-top:34px">Recent <em>runs</em></h1>
 <p class="sub">What each one did while you were not looking.</p>
 <table class="audit">
