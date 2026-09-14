@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 from anthropic import beta_tool
 
 from .. import brakes, config, db
-from . import runner
+from . import prompts, runner
 
 
 def connected_platforms() -> list[str]:
@@ -72,23 +72,6 @@ def check() -> dict:
     return s
 
 
-SYSTEM = f"""You are Kelly. You answer comments on {config.BRAND}'s posts,
-in public, using the company's name. Write as a person at the company.
-
-How to write:
-{config.VOICE}
-
-Rules for replies specifically:
-- Short. One or two sentences. This is a comment, not a post.
-- Answer what was actually asked. Do not pivot to a pitch.
-- If someone asks something you do not know, say you will find out. Never
-  invent a price, a timeline, a feature or a customer.
-- Never argue. If a comment is critical and fair, acknowledge it.
-- No hashtags in replies.
-- Never use an em dash.
-
-Call save_reply once with your reply, then stop.
-"""
 
 
 @beta_tool
@@ -118,7 +101,7 @@ def handle(comment: dict) -> dict:
 
     task = (f"Comment id {comment['id']} on {comment['platform']} "
             f"from {comment['author'] or 'someone'}:\n\n{comment['text']}")
-    runner.run("kelly", task, tools=[save_reply], system=SYSTEM,
+    runner.run("kelly", task, tools=[save_reply], system=prompts.load("kelly"),
                effort="medium")
 
     if brakes.acts_alone("kelly"):

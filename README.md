@@ -28,7 +28,11 @@ the store. That is why approving is a function in `db`, not logic in a route,
 and why adding Telegram approvals later is a couple of hours rather than a
 rewrite.
 
+Each agent's job description is a plain English file in `prompts/`, read fresh
+on every run. Scoping an agent means editing markdown, not code.
+
 ```
+prompts/        one job description per agent, in English
 app/
   config.py     the whole brand in one file
   db.py         the store: posts, comments, runs, settings, audit, notes, users
