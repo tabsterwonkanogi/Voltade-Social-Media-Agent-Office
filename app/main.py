@@ -19,7 +19,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from . import config, db, scheduler, web  # noqa: E402
+from . import auth, config, db, scheduler, web  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,10 +31,30 @@ log = logging.getLogger("app")
 sched = None
 
 
+def bootstrap_owner() -> None:
+    """First run on a fresh volume has no accounts, so nobody can sign in.
+
+    Creates the owner from ADMIN_NAME and ADMIN_PASSWORD once, and only when
+    the users table is empty. Never overwrites an existing account, so leaving
+    the variables set is harmless.
+    """
+    if auth.any_users():
+        return
+    name = os.environ.get("ADMIN_NAME", "").strip()
+    password = os.environ.get("ADMIN_PASSWORD", "").strip()
+    if not name or not password:
+        log.warning("no accounts and no ADMIN_NAME/ADMIN_PASSWORD set, "
+                    "nobody can sign in")
+        return
+    auth.create_user(name, "owner", password)
+    log.info("created the first owner account: %s", name)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global sched
     db.init_db()
+    bootstrap_owner()
     sched = scheduler.build()
     sched.start()
     log.info("clock started, %s jobs", len(sched.get_jobs()))

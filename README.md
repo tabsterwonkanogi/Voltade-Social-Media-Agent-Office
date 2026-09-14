@@ -69,6 +69,8 @@ BLOTATO_API_KEY       required to publish
 TELEGRAM_BOT_TOKEN    notifications
 TELEGRAM_CHAT_ID      notifications
 SESSION_SECRET        required, cookie signing
+ADMIN_NAME            first run only, creates the owner account
+ADMIN_PASSWORD        first run only, creates the owner account
 TZ                    Asia/Singapore
 DB_PATH               /data/app.db on Railway
 LINKEDIN_PAGE_ID      optional, pins the company page
