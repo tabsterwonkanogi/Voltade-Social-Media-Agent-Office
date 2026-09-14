@@ -1,0 +1,17 @@
+{% extends "base.html" %}{% block title %}Calendar{% endblock %}
+{% block body %}
+<h1>What goes <em>out</em></h1>
+<p class="sub">Approved and scheduled, soonest first.</p>
+{% if not posts %}
+<div class="empty">Nothing approved yet. Approve something on the queue and it shows up here.</div>
+{% endif %}
+{% for p in posts %}
+<div class="row">
+  <div>
+    <div class="name">{{ p.first_line }}</div>
+    <div class="role">{{ p.platforms|join(', ') }}</div>
+  </div>
+  <div class="when">{{ p.when }}</div>
+</div>
+{% endfor %}
+{% endblock %}

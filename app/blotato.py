@@ -47,7 +47,67 @@ def _req(path: str, body: dict | None = None, method: str = "GET") -> dict:
 
 
 def accounts() -> list[dict]:
-    return _req("/accounts").get("items", []) or []
+    return _req("/users/me/accounts").get("items", []) or []
+
+
+def accounts_by_platform() -> dict[str, str]:
+    return {a["platform"]: a["id"] for a in accounts()}
+
+
+def pages(account_id: str) -> list[dict]:
+    try:
+        return _req(f"/users/me/accounts/{account_id}/subaccounts").get("items", []) or []
+    except Exception:
+        return []
+
+
+class WouldPostToPersonalProfile(RuntimeError):
+    """Refusing to publish because no company page was resolved.
+
+    On LinkedIn and Facebook a target without a pageId posts to the personal
+    profile of whoever connected the account. That is not a small mistake, so
+    it is an exception rather than a warning.
+    """
+
+
+_PAGE_ENV = {"linkedin": "LINKEDIN_PAGE_ID", "facebook": "FACEBOOK_PAGE_ID"}
+
+
+def _page_id(account_id: str, platform: str) -> str | None:
+    pinned = (os.environ.get(_PAGE_ENV.get(platform, ""), "") or "").strip()
+    if pinned:
+        return pinned
+    found = pages(account_id)
+    for page in found:
+        if "voltade" in (page.get("name") or "").lower():
+            return page.get("id")
+    # One page and nothing else it could be is safe on Facebook, where a
+    # personal timeline never appears in this list. Never on LinkedIn, where
+    # the single entry can be the personal profile.
+    if platform == "facebook" and len(found) == 1:
+        return found[0].get("id")
+    return None
+
+
+def _target(platform: str, account_id: str) -> dict:
+    t = {"targetType": platform}
+    if platform == "tiktok":
+        t.update({"privacyLevel": "PUBLIC_TO_EVERYONE",
+                  "disabledComments": False, "disabledDuet": False,
+                  "disabledStitch": False, "isBrandedContent": False,
+                  "isYourBrand": True, "isAiGenerated": True})
+    elif platform in ("linkedin", "facebook"):
+        pid = _page_id(account_id, platform)
+        if pid:
+            t["pageId"] = pid
+        else:
+            names = ", ".join((p.get("name") or p.get("id", "?"))
+                              for p in pages(account_id)) or "none"
+            raise WouldPostToPersonalProfile(
+                f"no Voltade page resolved on {platform}, refusing to post to "
+                f"the personal profile. Pages found: {names}. "
+                f"Pin one with {_PAGE_ENV[platform]}=<page id> in .env")
+    return t
 
 
 def recent_posts() -> list[dict]:
@@ -68,7 +128,7 @@ def publish(account_id: str, platform: str, text: str,
     submitted = _req("/posts", {
         "post": {
             "accountId": account_id,
-            "target": {"targetType": platform},
+            "target": _target(platform, account_id),
             "content": {"text": text, "platform": platform,
                         "mediaUrls": media_urls or []},
         }

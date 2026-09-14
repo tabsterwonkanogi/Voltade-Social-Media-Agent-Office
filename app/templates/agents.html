@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% block title %}Agents{% endblock %}
+{% block body %}
+<h1>The <em>six</em></h1>
+<p class="sub">Ask me means their work waits for you. Just do it means they act and tell you afterwards.</p>
+
+{% for a in agents %}
+<div class="row">
+  <div>
+    <div class="name">{{ a.name|capitalize }}
+      {% if not a.ready %}<span class="pill warn">blocked</span>{% endif %}
+    </div>
+    <div class="role">{{ a.role }}{% if a.blocked_by %} · {{ a.blocked_by }}{% endif %}</div>
+    <div class="when">{{ a.last_run }}</div>
+  </div>
+  {% if can_configure %}
+  <form class="inline" method="post" action="/agents/{{ a.name }}/autonomy">
+    <input type="hidden" name="level" value="{{ 'ask' if a.autonomy == 'auto' else 'auto' }}">
+    <button type="submit" class="{{ 'yes' if a.autonomy == 'auto' else 'no' }}">
+      {{ 'just do it' if a.autonomy == 'auto' else 'ask me' }}
+    </button>
+  </form>
+  {% else %}
+  <span class="pill">{{ 'just do it' if a.autonomy == 'auto' else 'ask me' }}</span>
+  {% endif %}
+</div>
+{% endfor %}
+
+<h1 style="margin-top:34px">Recent <em>runs</em></h1>
+<p class="sub">What each one did while you were not looking.</p>
+<table class="audit">
+{% for r in runs %}
+  <tr>
+    <td>{{ r.when }}</td>
+    <td><b>{{ r.agent }}</b> {{ r.status }}{% if r.error %} · {{ r.error[:70] }}{% endif %}</td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}

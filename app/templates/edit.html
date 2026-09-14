@@ -1,0 +1,15 @@
+{% extends "base.html" %}{% block title %}Edit{% endblock %}
+{% block body %}
+<h1>Edit the <em>copy</em></h1>
+<p class="sub">{{ d.id }} · written by {{ d.created_by_agent }}</p>
+<form method="post" action="/post/{{ d.id }}/edit">
+  <textarea name="body">{{ d.body }}</textarea>
+  <label for="when">Go out at (leave blank for the next slot)</label>
+  <input id="when" type="datetime-local" name="scheduled_for" value="{{ d.sched_input }}">
+  <div class="acts" style="margin-top:16px">
+    <button class="yes" type="submit" name="action" value="save_approve">Save and approve</button>
+    <button type="submit" name="action" value="save">Save only</button>
+    <a class="btn" href="/">Back</a>
+  </div>
+</form>
+{% endblock %}

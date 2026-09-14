@@ -1,0 +1,51 @@
+{% extends "base.html" %}{% block title %}Settings{% endblock %}
+{% block body %}
+<h1>The <em>brakes</em></h1>
+
+<div class="row">
+  <div>
+    <div class="name">Kill switch</div>
+    <div class="role">Stops every agent at any autonomy setting. The clock keeps
+      ticking and keeps logging, but nothing acts.</div>
+  </div>
+  <form class="inline" method="post" action="/settings/kill">
+    <input type="hidden" name="on" value="{{ '0' if killed else '1' }}">
+    <button type="submit" class="{{ 'yes' if killed else 'danger' }}">
+      {{ 'Release' if killed else 'Stop everything' }}
+    </button>
+  </form>
+</div>
+
+<div class="row">
+  <div>
+    <div class="name">Kelly's rate limit</div>
+    <div class="role">{{ rate }} replies an hour, maximum. A loop cannot spray your name.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div>
+    <div class="name">Topics Kelly will not touch</div>
+    <div class="role">{{ no_go|join(', ') }}</div>
+  </div>
+</div>
+
+<h1 style="margin-top:34px">Who can <em>act</em></h1>
+{% for u in users %}
+<div class="row">
+  <div><div class="name">{{ u.name }}</div><div class="role">{{ u.role }}</div></div>
+  <div class="when">{{ u.since }}</div>
+</div>
+{% endfor %}
+
+<h1 style="margin-top:34px">The <em>trail</em></h1>
+<p class="sub">Every decision, who made it, and which surface it came from.</p>
+<table class="audit">
+{% for a in audit %}
+  <tr>
+    <td>{{ a.when }}</td>
+    <td><b>{{ a.actor }}</b> {{ a.action }} <span class="role">{{ a.surface }}</span></td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}

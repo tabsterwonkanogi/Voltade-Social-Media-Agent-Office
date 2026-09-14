@@ -8,12 +8,19 @@ in the codebase.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from zoneinfo import ZoneInfo
 
 # ---------------------------------------------------------------- environment
 
+ROOT = Path(__file__).resolve().parent.parent
+
 TZ = ZoneInfo(os.environ.get("TZ", "Asia/Singapore"))
-DB_PATH = os.environ.get("DB_PATH", "data/app.db")
+
+# Relative paths resolve against the project, never the working directory.
+# Railway runs from elsewhere and the launcher runs from the parent folder.
+_db = os.environ.get("DB_PATH", "data/app.db")
+DB_PATH = _db if os.path.isabs(_db) else str(ROOT / _db)
 
 # ---------------------------------------------------------------- the brand
 

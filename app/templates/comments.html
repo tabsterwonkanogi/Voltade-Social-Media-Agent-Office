@@ -1,0 +1,44 @@
+{% extends "base.html" %}{% block title %}Comments{% endblock %}
+{% block body %}
+<h1>What people <em>said</em></h1>
+{% if not ready %}
+<div class="notconnected">
+  <b>Kelly cannot hear yet</b>
+  No platform has granted comment read access. LinkedIn and Meta are both in review.
+  Until one lands this page stays empty rather than showing you something invented.
+</div>
+{% endif %}
+
+{% for c in drafted %}
+<article class="draft">
+  <div class="meta">
+    <span class="pill">{{ c.platform }}</span>
+    <span>from {{ c.author or 'someone' }}</span>
+  </div>
+  <p class="body">{{ c.text }}</p>
+  <p class="body" style="color:var(--brand)">{{ c.reply_text }}</p>
+  <div class="acts">
+    <form class="inline" method="post" action="/comment/{{ c.id }}/send">
+      <button class="yes" type="submit">Send it</button>
+    </form>
+    <form class="inline" method="post" action="/comment/{{ c.id }}/skip">
+      <button class="no" type="submit">Skip</button>
+    </form>
+  </div>
+</article>
+{% endfor %}
+
+{% if blocked %}
+<h1 style="margin-top:30px">Refused, and <em>why</em></h1>
+<p class="sub">Kelly records what she will not answer instead of skipping it quietly.</p>
+{% for c in blocked %}
+<article class="draft">
+  <div class="meta">
+    <span class="pill">{{ c.platform }}</span>
+    <span class="pill stop">{{ c.blocked_reason }}</span>
+  </div>
+  <p class="body">{{ c.text }}</p>
+</article>
+{% endfor %}
+{% endif %}
+{% endblock %}

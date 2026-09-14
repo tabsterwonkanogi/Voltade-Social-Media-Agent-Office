@@ -45,7 +45,7 @@ def post_one(post: dict, dry_run: bool = False) -> dict:
         return {"post_id": post["id"], "skipped": reason}
 
     try:
-        accounts = {a.get("platform"): a.get("id") for a in blotato.accounts()}
+        accounts = blotato.accounts_by_platform()
     except Exception as exc:
         db.end_run(run_id, status="error", error=str(exc))
         raise
@@ -57,8 +57,12 @@ def post_one(post: dict, dry_run: bool = False) -> dict:
             outcome[platform] = {"ok": False,
                                  "error": f"no {platform} account connected"}
             continue
-        res = blotato.publish(account_id, platform, post["body"],
-                              post["media_paths"])
+        try:
+            res = blotato.publish(account_id, platform, post["body"],
+                                  post["media_paths"])
+        except blotato.WouldPostToPersonalProfile as exc:
+            outcome[platform] = {"ok": False, "error": str(exc)}
+            continue
         outcome[platform] = {"ok": res["ok"], "error": res["error"],
                              "url": res["post_url"]}
         if res["blotato_id"]:

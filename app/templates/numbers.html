@@ -1,0 +1,20 @@
+{% extends "base.html" %}{% block title %}Numbers{% endblock %}
+{% block body %}
+<h1>Did any of it <em>work</em></h1>
+{% if not ready %}
+<div class="notconnected">
+  <b>Not connected</b>
+  Angela has no platform metrics yet, so there is nothing real to show.
+  There will never be a placeholder number on this page.
+</div>
+{% endif %}
+
+<h1 style="margin-top:30px">What we <em>can</em> count</h1>
+<p class="sub">From our own records, not from any platform.</p>
+{% for k, v in house.items() %}
+<div class="row">
+  <div class="name">{{ k.replace('_', ' ') }}</div>
+  <div class="when">{{ v }}</div>
+</div>
+{% endfor %}
+{% endblock %}

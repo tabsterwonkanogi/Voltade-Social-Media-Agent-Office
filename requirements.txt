@@ -5,4 +5,5 @@ apscheduler
 httpx
 jinja2
 python-dotenv
-passlib[bcrypt]
+itsdangerous
+python-multipart

@@ -1,0 +1,38 @@
+{% extends "base.html" %}{% block title %}Queue{% endblock %}
+{% block body %}
+<h1>Waiting for <em>you</em></h1>
+<p class="sub">{{ drafts|length }} draft{{ '' if drafts|length == 1 else 's' }}.
+  Unreviewed ones expire after 72 hours, so ignoring this is safe.</p>
+
+{% if not drafts %}
+<div class="empty">Nothing waiting. The agents put something here when they make it.</div>
+{% endif %}
+
+{% for d in drafts %}
+<article class="draft">
+  <div class="meta">
+    <span class="pill">{{ d.pillar or 'no pillar' }}</span>
+    {% for p in d.platforms %}<span class="pill">{{ p }}</span>{% endfor %}
+    {% if d.confidential %}<span class="pill stop">confidential source</span>{% endif %}
+    <span>by {{ d.created_by_agent }}</span>
+    <span class="pill warn">expires {{ d.expires_local }}</span>
+  </div>
+  <p class="body">{{ d.preview }}</p>
+  {% if d.rest %}
+  <details class="more">
+    <summary>Read the rest, {{ d.words }} words in total</summary>
+    <p class="body">{{ d.rest }}</p>
+  </details>
+  {% endif %}
+  <div class="acts">
+    <form class="inline" method="post" action="/post/{{ d.id }}/approve">
+      <button class="yes" type="submit">Approve</button>
+    </form>
+    <form class="inline" method="post" action="/post/{{ d.id }}/reject">
+      <button class="no" type="submit">Reject</button>
+    </form>
+    <a class="btn" href="/post/{{ d.id }}/edit">Edit</a>
+  </div>
+</article>
+{% endfor %}
+{% endblock %}

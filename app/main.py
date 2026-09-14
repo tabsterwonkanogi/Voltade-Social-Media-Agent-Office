@@ -9,14 +9,17 @@ from __future__ import annotations
 import logging
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.sessions import SessionMiddleware
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from . import config, db, scheduler  # noqa: E402
+from . import config, db, scheduler, web  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,6 +46,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Voltade agent office", lifespan=lifespan)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=os.environ.get("SESSION_SECRET", "dev-only-change-me"),
+    same_site="lax",
+    max_age=60 * 60 * 24 * 30,
+)
+app.mount("/static", StaticFiles(
+    directory=str(Path(__file__).parent / "static")), name="static")
 
 
 @app.get("/health")
@@ -64,8 +75,4 @@ def health():
     return JSONResponse(body, status_code=503 if stalled else 200)
 
 
-@app.get("/")
-def root():
-    return {"service": "Voltade agent office",
-            "agents": config.AGENTS,
-            "cockpit": "step 12"}
+app.include_router(web.router)
