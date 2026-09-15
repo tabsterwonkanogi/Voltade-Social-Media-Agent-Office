@@ -154,6 +154,21 @@ CREATE TABLE IF NOT EXISTS chats (
 );
 CREATE INDEX IF NOT EXISTS idx_chats_agent ON chats(agent, at);
 
+CREATE TABLE IF NOT EXISTS room (
+    id          TEXT PRIMARY KEY,
+    at          TEXT NOT NULL,
+    agent       TEXT,
+    role        TEXT NOT NULL,
+    text        TEXT NOT NULL,
+    actor       TEXT,
+    tg_chat_id  TEXT,
+    tg_msg_id   TEXT,
+    topic_id    TEXT,
+    reply_to    TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_room_at ON room(at);
+CREATE INDEX IF NOT EXISTS idx_room_msg ON room(tg_chat_id, tg_msg_id);
+
 CREATE TABLE IF NOT EXISTS users (
     id            TEXT PRIMARY KEY,
     name          TEXT NOT NULL,
@@ -570,4 +585,40 @@ def open_run(agent: str) -> dict | None:
         row = conn.execute(
             "SELECT * FROM runs WHERE agent = ? AND ended_at IS NULL "
             "ORDER BY started_at DESC LIMIT 1", (agent,)).fetchone()
+    return dict(row) if row else None
+
+
+# ---------------------------------------------------------------- the room
+# One shared transcript of the team chat. Telegram never delivers one bot's
+# message to another bot, so agents cannot learn what happened by listening.
+# They read it here instead: we sent all of it, so we already know.
+
+def room_add(role: str, text: str, *, agent: str | None = None,
+             actor: str | None = None, tg_chat_id: str | None = None,
+             tg_msg_id: str | None = None, topic_id: str | None = None,
+             reply_to: str | None = None) -> str:
+    msg_id = new_id("room")
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO room (id, at, agent, role, text, actor, tg_chat_id, "
+            "tg_msg_id, topic_id, reply_to) VALUES (?,?,?,?,?,?,?,?,?,?)",
+            (msg_id, now(), agent, role, text, actor,
+             tg_chat_id, tg_msg_id, topic_id, reply_to))
+    return msg_id
+
+
+def room_recent(limit: int = 30) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM room ORDER BY at DESC, rowid DESC LIMIT ?",
+            (limit,)).fetchall()
+    return [dict(r) for r in reversed(rows)]
+
+
+def room_by_message(chat_id: str, msg_id: str) -> dict | None:
+    """Which agent said the thing she just replied to."""
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM room WHERE tg_chat_id = ? AND tg_msg_id = ?",
+            (str(chat_id), str(msg_id))).fetchone()
     return dict(row) if row else None

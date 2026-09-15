@@ -15,7 +15,7 @@ from fastapi import APIRouter, BackgroundTasks, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
-from . import auth, config, db
+from . import auth, config, db, room
 from .agents import angela, jim, kelly, michael, pam, prompts, runner
 
 router = APIRouter()
@@ -110,6 +110,27 @@ def floor_state(request: Request):
         "queue": len(db.list_posts(status="pending", limit=200)),
         "approved": len(db.list_posts(status="approved", limit=200)),
     })
+
+
+@router.post("/telegram/{agent}/{secret}")
+async def telegram_webhook(agent: str, secret: str, request: Request):
+    """Inbound from one agent's bot.
+
+    The secret is in the path because that is the only place Telegram will
+    carry one. An unknown secret is answered with a plain ok so a scanner
+    learns nothing from the difference.
+    """
+    import os
+    if secret != (os.environ.get("WEBHOOK_SECRET") or "").strip():
+        return JSONResponse({"ok": True})
+    if agent not in config.AGENTS:
+        return JSONResponse({"ok": True})
+    try:
+        room.handle_update(agent, await request.json())
+    except Exception:
+        import logging
+        logging.getLogger("room").exception("webhook for %s failed", agent)
+    return JSONResponse({"ok": True})
 
 
 @router.get("/floor", response_class=HTMLResponse)

@@ -21,7 +21,23 @@ def configured() -> bool:
                 and os.environ.get("TELEGRAM_CHAT_ID"))
 
 
-def send(text: str) -> bool:
+def send(text: str, *, agent: str = "michael") -> bool:
+    """Say it in the team group when there is one, else fall back to the DM.
+
+    The group is the product. The direct message stays wired as a backstop so
+    a removed bot or a deleted group does not silently take the 6pm rundown
+    and the dead man's switch with it.
+    """
+    try:
+        from . import room
+        if room.ready():
+            return room.say(agent, text) is not None
+    except Exception:
+        log.exception("group send failed, falling back to the direct message")
+    return _send_dm(text)
+
+
+def _send_dm(text: str) -> bool:
     """Best effort. A failed notification must never break a scheduled job."""
     if not configured():
         log.warning("telegram not configured, message dropped")
