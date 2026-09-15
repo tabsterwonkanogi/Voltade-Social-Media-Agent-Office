@@ -207,13 +207,22 @@ def get_setting(key: str, default: str | None = None) -> str | None:
     return row["value"] if row else default
 
 
-def set_setting(key: str, value: str, *, actor: str, surface: str) -> None:
+def set_setting(key: str, value: str, *, actor: str, surface: str,
+                record: bool = True) -> None:
+    """Change a setting, and by default record who changed it.
+
+    Pass record=False for machine bookkeeping the clock writes on every tick,
+    a heartbeat or a last-run marker. Those are not decisions, and auditing
+    them buries the decisions: within a day the trail was a hundred percent
+    heartbeat and you could no longer see who stopped the system.
+    """
     with connect() as conn:
         conn.execute(
             "INSERT INTO settings (key, value) VALUES (?,?) "
             "ON CONFLICT(key) DO UPDATE SET value = excluded.value", (key, value))
-        audit("setting.changed", actor=actor, surface=surface,
-              target=key, detail=value, conn=conn)
+        if record:
+            audit("setting.changed", actor=actor, surface=surface,
+                  target=key, detail=value, conn=conn)
 
 
 def killed() -> bool:

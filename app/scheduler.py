@@ -36,7 +36,7 @@ def already_ran(job: str, stamp: str) -> bool:
     key = f"lastrun.{job}"
     if db.get_setting(key) == stamp:
         return True
-    db.set_setting(key, stamp, actor="system", surface="system")
+    db.set_setting(key, stamp, actor="system", surface="system", record=False)
     return False
 
 
@@ -51,11 +51,13 @@ def slot_stamp() -> str:
 def guarded(name: str, fn, *, once_per=None):
     """Wrap a job so it cannot kill the scheduler and cannot double fire."""
     def job():
-        db.set_setting(HEARTBEAT, db.now(), actor="system", surface="system")
+        db.set_setting(HEARTBEAT, db.now(), actor="system", surface="system",
+                       record=False)
         if db.killed():
+            # Logged, not audited. While the switch is on every job halts
+            # every few minutes, and a row each time would bury the one row
+            # that matters: who turned it on.
             log.info("%s skipped, kill switch on", name)
-            db.audit("job.halted", actor="system", surface="system",
-                     target=name, detail="kill switch on")
             return
         if once_per is not None and already_ran(name, once_per()):
             log.info("%s already ran for this slot", name)
