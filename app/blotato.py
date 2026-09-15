@@ -36,6 +36,20 @@ def configured() -> bool:
     return bool((os.environ.get("BLOTATO_API_KEY") or "").strip())
 
 
+def publishing_enabled() -> bool:
+    """Publishing is off unless an environment explicitly turns it on.
+
+    Having a key is not consent. On 14 September a development server was left
+    running with a live scheduler, and the moment the real key landed in .env
+    it published four rows to the company LinkedIn page, two of which were
+    drafts a test script had created. A key is now necessary but not
+    sufficient: only an environment that sets PUBLISHING=on may post, and no
+    local .env should ever set it.
+    """
+    return (os.environ.get("PUBLISHING", "").strip().lower()
+            in ("on", "1", "true", "yes"))
+
+
 def _req(path: str, body: dict | None = None, method: str = "GET") -> dict:
     with httpx.Client(timeout=60) as c:
         r = c.request(method, f"{BASE}{path}",

@@ -70,6 +70,9 @@ python -m scripts.check_pages   # every cockpit page renders
 ```
 ANTHROPIC_API_KEY     required
 BLOTATO_API_KEY       required to publish
+PUBLISHING            set to "on" to allow posting. Production only.
+                      Never set this in a local .env: a dev server with a
+                      live scheduler will publish approved rows for real.
 TELEGRAM_BOT_TOKEN    notifications
 TELEGRAM_CHAT_ID      notifications
 SESSION_SECRET        required, cookie signing

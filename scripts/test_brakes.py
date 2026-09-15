@@ -34,17 +34,42 @@ def rule(title: str) -> None:
     print(f"\n{B}{title}{X}\n{'-' * 58}")
 
 
+def cleanup(ids: list[str]) -> None:
+    """Nothing a test created may ever be publishable.
+
+    TAKE 1 flips Pam to auto, and a draft created under auto lands as
+    approved, which is a row Dwight will publish. On 14 September two of these
+    reached the company LinkedIn page. Tests now reject what they create,
+    in a finally block, so an exception cannot leave one armed.
+    """
+    for post_id in ids:
+        post = db.get_post(post_id)
+        if post and post["status"] != "rejected":
+            db.reject(post_id, actor="test", surface="system",
+                      reason="created by test_brakes, never for publication")
+
+
 def main() -> None:
     db.init_db()
     brakes.kill_switch(False, actor="beatrice", surface="web")
     brakes.set_autonomy("pam", "ask", actor="beatrice", surface="web")
 
+    made: list[str] = []
+    try:
+        _run(made)
+    finally:
+        cleanup(made)
+        print(f"\n{Y}cleaned up{X} {len(made)} test drafts, none can publish\n")
+
+
+def _run(made: list[str]) -> None:
     # ---------------------------------------------------- take 1
     rule("TAKE 1   the autonomy dial")
 
     print(f"pam is on {B}ask{X}")
     pid = db.create_draft("Test draft while Pam is on ask.", agent="pam",
                           pillar="build_in_public", platforms=["linkedin"])
+    made.append(pid)
     print(f"   her work lands as {Y}{db.get_post(pid)['status']}{X}, "
           f"waiting for you\n")
 
@@ -52,6 +77,7 @@ def main() -> None:
     print(f"you flip her to {B}auto{X} from the cockpit")
     pid = db.create_draft("Test draft while Pam is on auto.", agent="pam",
                           pillar="build_in_public", platforms=["linkedin"])
+    made.append(pid)
     print(f"   the same work now lands as {G}{db.get_post(pid)['status']}{X}, "
           f"straight into the queue to go out")
 

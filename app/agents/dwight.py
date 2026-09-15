@@ -38,8 +38,10 @@ def post_all(dry_run: bool = False) -> list[dict]:
 def post_one(post: dict, dry_run: bool = False) -> dict:
     run_id = db.start_run("dwight")
 
-    if dry_run or not blotato.configured():
-        reason = "dry run" if dry_run else "BLOTATO_API_KEY not set"
+    if dry_run or not blotato.configured() or not blotato.publishing_enabled():
+        reason = ("dry run" if dry_run
+                  else "BLOTATO_API_KEY not set" if not blotato.configured()
+                  else "publishing is off in this environment, PUBLISHING is not on")
         db.end_run(run_id, status="skipped", summary=reason)
         log.info("skipped %s (%s)", post["id"], reason)
         return {"post_id": post["id"], "skipped": reason}
