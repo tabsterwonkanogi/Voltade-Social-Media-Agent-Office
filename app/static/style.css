@@ -1,37 +1,66 @@
+/* Voltade Social Media Office
+ *
+ * Typist names things: the office, the agents, the numbers. Helvetica carries
+ * everything a person reads as information. Typist is not a web font, so it is
+ * served from /static/fonts when the file is there and falls back to Cutive,
+ * the closest typewriter serif, until it is.
+ */
+@font-face{
+  font-family:"Typist";
+  src:url("/static/fonts/Typist.ttf") format("truetype"),
+      url("/static/fonts/typist.ttf") format("truetype");
+  font-display:swap;
+}
+
 :root{
-  --ground:#f7f4ef; --card:#ffffff; --card-2:#fbf9f6;
-  --ink:#2a0030; --soft:#6a4a70; --faint:#9b86a0;
-  --line:#e8e0da;
-  --brand:#5a005f; --brand-bg:#f3e9f4;
-  --accent:#d8451a;
-  --go:#0f6e56; --go-bg:#e2f4ed;
-  --stop:#a32d2d; --stop-bg:#fbeaea;
-  --hold:#8a5f0b; --hold-bg:#fbf0d8;
+  /* Beige ground. The 2000s office in daylight. */
+  --ground:#e9e0cc;
+  --card:#f6f0e1;
+  --card-2:#efe7d4;
+  --line:#d6c9ac;
+  --line-soft:#e2d7be;
+
+  --ink:#3b2e35;
+  --soft:#5a4651;
+  --faint:#8a7a72;
+
+  /* The palette, by its own names. */
+  --master-key:#dccd8b;
+  --prickly-pear:#a7993c;
+  --mozart:#475480;
+  --sunburn:#b57056;
+  --copper-red:#7f3b25;
+  --edamame:#aea181;
+  --wilted-brown:#a84f3d;
+  --purple-basil:#5a4651;
+  --dulcet-violet:#5a384b;
+  --palm-leaf:#37462b;
+
+  --brand:#5a384b;      --brand-bg:#e7dcd7;
+  --accent:#a84f3d;
+  --go:#37462b;         --go-bg:#dfe3cf;
+  --stop:#7f3b25;       --stop-bg:#f0ddd2;
+  --hold:#7d6f22;       --hold-bg:#f1e8c6;
+
+  --font-display:"Typist", Cutive, "Courier New", Georgia, serif;
+  --font-body:"Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-@media (prefers-color-scheme:dark){
-  :root{
-    --ground:#150f19; --card:#1e1723; --card-2:#241c2a;
-    --ink:#f3ebf4; --soft:#c1adc5; --faint:#8b7890;
-    --line:#33273a;
-    --brand:#dda9e0; --brand-bg:#2c1c31;
-    --accent:#ff8a5c;
-    --go:#5dcaa5; --go-bg:#12322a;
-    --stop:#f09595; --stop-bg:#3a1a1a;
-    --hold:#f0c674; --hold-bg:#3a2e10;
-  }
-}
+/* One theme on purpose. This is a lit daytime office in beige, and a dark
+   variant would fight the thing the whole screen is about. The floor still
+   goes dark, but only when the kill switch is on, which is meaning, not
+   preference. */
 *{box-sizing:border-box}
 body{
   margin:0; background:var(--ground); color:var(--ink);
-  font-family:"League Spartan","Segoe UI",system-ui,sans-serif;
-  font-size:16px; line-height:1.55;
+  font-family:var(--font-body);
+  font-size:15px; line-height:1.55;
   -webkit-text-size-adjust:100%;
 }
 main{max-width:760px; margin:0 auto; padding-inline:16px; padding-block:20px 64px;}
 
 .alarm{
   background:var(--stop-bg); color:var(--stop); text-align:center;
-  padding:10px 16px; font-weight:500; font-size:14px;
+  padding:10px 16px; font-weight:700; font-size:13.5px;
   border-bottom:1px solid var(--stop);
 }
 .top{
@@ -39,10 +68,10 @@ main{max-width:760px; margin:0 auto; padding-inline:16px; padding-block:20px 64p
   gap:12px; padding:18px 16px 10px; max-width:760px; margin:0 auto;
 }
 .brand{
-  font-family:"Instrument Serif",Georgia,serif; font-size:26px;
-  color:var(--ink); text-decoration:none; letter-spacing:-.01em;
+  font-family:var(--font-display); font-size:21px; line-height:1.15;
+  color:var(--ink); text-decoration:none;
 }
-.who{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--faint);}
+.who{font-size:11px; color:var(--faint); letter-spacing:.02em;}
 
 .tabs{
   display:flex; gap:2px; overflow-x:auto; padding:0 16px 2px;
@@ -51,42 +80,41 @@ main{max-width:760px; margin:0 auto; padding-inline:16px; padding-block:20px 64p
 }
 .tabs::-webkit-scrollbar{display:none}
 .tabs a{
-  flex:none; padding:8px 13px; font-size:14px; text-decoration:none;
+  flex:none; padding:8px 13px; font-size:13px; text-decoration:none;
   color:var(--soft); border-bottom:2px solid transparent; white-space:nowrap;
 }
-.tabs a b{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--accent);}
+.tabs a b{font-size:11px; color:var(--accent);}
 .tabs a.on{color:var(--ink); border-bottom-color:var(--brand);}
 
 h1{
-  font-family:"Instrument Serif",Georgia,serif; font-weight:400;
-  font-size:30px; margin:6px 0 2px; letter-spacing:-.01em;
+  font-family:var(--font-display); font-weight:400;
+  font-size:26px; margin:6px 0 2px; line-height:1.2;
 }
-h1 em{font-style:italic; color:var(--brand)}
-.sub{color:var(--faint); font-size:14px; margin:0 0 22px;}
+h1 em{font-style:normal; color:var(--brand)}
+.sub{color:var(--faint); font-size:13.5px; margin:0 0 22px;}
 
 .flash{
   background:var(--go-bg); color:var(--go); padding:10px 14px;
-  border-radius:8px; font-size:14px; margin:0 0 18px;
+  border-radius:7px; font-size:14px; margin:0 0 18px;
 }
 
 .draft{
-  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:16px; margin-bottom:14px;
 }
 .meta{
   display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-  font-family:"JetBrains Mono",monospace; font-size:11px;
-  color:var(--faint); margin-bottom:10px;
+  font-size:11px; letter-spacing:.02em; color:var(--faint); margin-bottom:10px;
 }
 .pill{padding:3px 8px; border-radius:4px; background:var(--brand-bg); color:var(--brand);}
 .pill.warn{background:var(--hold-bg); color:var(--hold);}
 .pill.go{background:var(--go-bg); color:var(--go);}
 .pill.stop{background:var(--stop-bg); color:var(--stop);}
-.body{white-space:pre-wrap; font-size:15px; margin:0 0 14px;}
+.body{white-space:pre-wrap; font-size:14.5px; margin:0 0 14px;}
 details.more{margin:-4px 0 14px}
 details.more summary{
-  cursor:pointer; font-size:13px; color:var(--brand);
-  font-family:"JetBrains Mono",monospace; padding:6px 0; list-style:none;
+  cursor:pointer; font-size:12.5px; color:var(--brand); padding:6px 0;
+  list-style:none;
 }
 details.more summary::-webkit-details-marker{display:none}
 details.more summary::before{content:"+ "}
@@ -95,8 +123,8 @@ details.more .body{margin-top:8px}
 
 .acts{display:flex; gap:8px; flex-wrap:wrap;}
 button, .btn{
-  font-family:inherit; font-size:15px; font-weight:500;
-  padding:12px 18px; border-radius:9px; border:1px solid var(--line);
+  font-family:inherit; font-size:14px; font-weight:700;
+  padding:12px 18px; border-radius:7px; border:1px solid var(--line);
   background:var(--card-2); color:var(--ink); cursor:pointer;
   min-height:46px; min-width:86px;
 }
@@ -108,83 +136,81 @@ form.inline{display:inline}
 
 textarea{
   width:100%; font-family:inherit; font-size:15px; line-height:1.55;
-  padding:12px; border-radius:9px; border:1px solid var(--line);
+  padding:12px; border-radius:7px; border:1px solid var(--line);
   background:var(--card-2); color:var(--ink); min-height:220px;
 }
 input[type=text],input[type=password],input[type=datetime-local],select{
   width:100%; font-family:inherit; font-size:16px; padding:12px;
-  border-radius:9px; border:1px solid var(--line);
+  border-radius:7px; border:1px solid var(--line);
   background:var(--card-2); color:var(--ink);
 }
-label{display:block; font-size:13px; color:var(--soft); margin:14px 0 5px;}
+label{display:block; font-size:12.5px; color:var(--soft); margin:14px 0 5px;}
 
 .row{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
-  background:var(--card); border:1px solid var(--line); border-radius:12px;
+  background:var(--card); border:1px solid var(--line); border-radius:10px;
   padding:14px 16px; margin-bottom:10px; flex-wrap:wrap;
 }
-.row .name{font-weight:500}
-.row .role{font-size:13px; color:var(--faint)}
-.row .when{font-family:"JetBrains Mono",monospace; font-size:11px; color:var(--faint)}
+.row .name{font-family:var(--font-display); font-size:17px}
+.row .role{font-size:12.5px; color:var(--faint)}
+.row .when{font-size:11px; color:var(--faint)}
 
 .empty{
-  border:1px dashed var(--line); border-radius:12px; padding:32px 20px;
+  border:1px dashed var(--line); border-radius:10px; padding:32px 20px;
   text-align:center; color:var(--faint); font-size:14px;
 }
 .notconnected{
   background:var(--hold-bg); border:1px solid var(--hold); color:var(--hold);
-  border-radius:12px; padding:18px; font-size:14px;
+  border-radius:10px; padding:18px; font-size:14px;
 }
-.notconnected b{display:block; font-size:16px; margin-bottom:5px;}
+.notconnected b{
+  display:block; font-family:var(--font-display); font-weight:400;
+  font-size:18px; margin-bottom:5px;
+}
 
 .login{max-width:340px; margin:60px auto; padding-inline:16px;}
 .err{color:var(--stop); font-size:14px; margin-top:12px;}
 
 table.audit{width:100%; border-collapse:collapse; font-size:13px;}
 table.audit td{padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top;}
-table.audit td:first-child{
-  font-family:"JetBrains Mono",monospace; font-size:11px;
-  color:var(--faint); white-space:nowrap;
-}
-
+table.audit td:first-child{font-size:11px; color:var(--faint); white-space:nowrap;}
 
 /* ---------------------------------------------------------- the floor */
 #floorwrap{margin:0 -16px}
 #floor{
-  display:block; width:100%; height:min(62vh,560px); background:var(--card);
-  border-block:1px solid var(--line); cursor:grab;
+  display:block; width:100%; height:420px;
+  background:var(--ground); border-block:1px solid var(--line); cursor:grab;
   touch-action:none;                 /* we own panning, not the browser */
 }
 #floor:active{cursor:grabbing}
-#legend{padding:10px 16px 0; margin:0}
+#legend{padding:10px 16px 0; margin:0; font-size:12.5px}
 
 #panel{
   position:fixed; right:0; bottom:0; width:min(420px,100%); max-height:78vh;
   overflow:auto; background:var(--card); border-top:1px solid var(--line);
-  border-left:1px solid var(--line); border-radius:14px 14px 0 0;
-  padding:18px 18px 22px; box-shadow:0 -6px 28px rgba(0,0,0,.22); z-index:20;
+  border-left:1px solid var(--line); border-radius:12px 12px 0 0;
+  padding:18px 18px 22px; box-shadow:0 -6px 28px rgba(59,46,53,.20); z-index:20;
 }
 #panel header{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
-#panel h2{
-  font-family:"Instrument Serif",Georgia,serif; font-weight:400;
-  font-size:26px; margin:0;
-}
+#panel h2{font-family:var(--font-display); font-weight:400; font-size:25px; margin:0}
 #panel h3{
-  font-family:"JetBrains Mono",monospace; font-size:10px; font-weight:400;
-  letter-spacing:.14em; text-transform:uppercase; color:var(--faint);
-  margin:22px 0 8px;
+  font-size:10.5px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--faint); margin:22px 0 8px;
 }
 #panel .sub{margin:2px 0 0}
 #panel button{min-width:0; min-height:38px; padding:8px 14px; font-size:13px}
 .statusline{display:flex; gap:6px; flex-wrap:wrap; margin-top:12px}
-.statusline .pill{font-family:"JetBrains Mono",monospace; font-size:11px}
+.statusline .pill{font-size:11px}
 
 .today{display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
 .today div{
-  background:var(--card-2); border:1px solid var(--line); border-radius:10px;
+  background:var(--card-2); border:1px solid var(--line); border-radius:8px;
   padding:10px 8px; text-align:center;
 }
-.today b{display:block; font-size:19px; font-variant-numeric:tabular-nums}
+.today b{
+  display:block; font-family:var(--font-display); font-weight:400;
+  font-size:19px; font-variant-numeric:tabular-nums;
+}
 .today span{font-size:11px; color:var(--faint)}
 .lastline{font-size:13.5px; color:var(--soft); margin:10px 0 0}
 
@@ -193,7 +219,7 @@ table.audit td:first-child{
   padding:4px 0;
 }
 .msg{
-  font-size:14px; line-height:1.5; padding:9px 12px; border-radius:10px;
+  font-size:14px; line-height:1.5; padding:9px 12px; border-radius:8px;
   white-space:pre-wrap; max-width:92%;
 }
 .msg.user{background:var(--brand-bg); color:var(--brand); align-self:flex-end}
