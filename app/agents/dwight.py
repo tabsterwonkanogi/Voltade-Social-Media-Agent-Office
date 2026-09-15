@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 
-from .. import blotato, db
+from .. import blotato, db, notify
 
 log = logging.getLogger("agents.dwight")
 
@@ -71,7 +71,28 @@ def post_one(post: dict, dry_run: bool = False) -> dict:
             ids[platform] = res["blotato_id"]
 
     db.record_publish(post["id"], blotato_ids=ids, result=outcome)
+    _tell_her(post, outcome)
     db.end_run(run_id, status="ok",
                summary=", ".join(f"{k}:{'ok' if v['ok'] else 'failed'}"
                                  for k, v in outcome.items()))
     return {"post_id": post["id"], "result": outcome}
+
+
+def _tell_her(post: dict, outcome: dict) -> None:
+    """Say so, every single time something reaches a real account.
+
+    Publishing used to be silent: the only message this system sent was the
+    6pm digest, and that reports counts. On 14 September four posts reached
+    the company LinkedIn page and the first anyone knew of it was scrolling
+    the feed. Anything that speaks in public announces itself.
+    """
+    first = post["body"].splitlines()[0][:70]
+    lines = [f"Posted: {first}", ""]
+    for platform, res in outcome.items():
+        if res.get("ok"):
+            lines.append(f"  {platform}: live  {res.get('url') or ''}".rstrip())
+        else:
+            lines.append(f"  {platform}: FAILED  {(res.get('error') or '')[:90]}")
+    lines += ["", f"Approved by whoever approved {post['id']}. "
+                  f"If this is a surprise, the kill switch is in Settings."]
+    notify.send("\n".join(lines))
