@@ -19,7 +19,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from . import auth, config, db, scheduler, web  # noqa: E402
+from . import auth, blotato, config, db, scheduler, web  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -89,6 +89,11 @@ def health():
         "ok": not stalled,
         "heartbeat_age_seconds": None if age is None else round(age),
         "kill_switch": "on" if db.killed() else "off",
+        # Two independent stops, reported separately so "is it safe" is one
+        # glance rather than an inference. Agents halt on the kill switch;
+        # publishing additionally needs PUBLISHING=on in the environment.
+        "agents_running": not db.killed(),
+        "publishing_armed": blotato.publishing_enabled(),
         "jobs": len(sched.get_jobs()) if sched else 0,
         "pending_drafts": len(db.list_posts(status="pending", limit=200)),
     }
