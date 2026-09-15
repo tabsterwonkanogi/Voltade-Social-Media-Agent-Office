@@ -17,6 +17,18 @@ from .. import config
 PROMPTS = config.ROOT / "prompts"
 
 
+def persona() -> str:
+    """Michael's voice, switchable from Settings without editing a prompt.
+
+    A costume that can only be taken off by editing a file is not a switch,
+    and she asked to be able to turn it off immediately.
+    """
+    from .. import db
+    if db.get_setting("persona.michael", "on") != "on":
+        return ""
+    return config.MICHAEL_PERSONA.strip()
+
+
 def context() -> dict[str, str]:
     return {
         "brand": config.BRAND,
@@ -26,6 +38,12 @@ def context() -> dict[str, str]:
         "pillars": "\n".join(f"- {k}: {v}" for k, v in config.PILLARS),
         "no_go": "\n".join(f"- {t}" for t in config.NO_GO_TOPICS),
         "posts_per_day": str(config.POSTS_PER_DAY),
+        "posts_min": str(config.POSTS_PER_DAY_MIN),
+        "posts_max": str(config.POSTS_PER_DAY_MAX),
+        "opinions": "\n".join("- " + o for o in config.OPINIONS),
+        "people": ", ".join(f"{n} ({r})" for n, r in config.PEOPLE.items()),
+        "podcast": config.PODCAST,
+        "persona": persona(),
         "review_minutes": str(config.REVIEW_BUDGET_MINUTES),
         "rate_limit": str(config.KELLY_MAX_REPLIES_PER_HOUR),
     }

@@ -281,7 +281,20 @@ def settings(request: Request):
              for a in db.recent_audit(40)]
     return render(request, "settings.html", "settings", users=users,
                   audit=audit, rate=config.KELLY_MAX_REPLIES_PER_HOUR,
-                  no_go=config.NO_GO_TOPICS)
+                  no_go=config.NO_GO_TOPICS,
+                  persona=db.get_setting("persona.michael", "on") == "on",
+                  volume=(config.POSTS_PER_DAY_MIN, config.POSTS_PER_DAY_MAX))
+
+
+@router.post("/settings/persona")
+def persona(request: Request, on: str = Form(...)):
+    user = auth.require(request, auth.CAN_CONFIGURE)
+    db.set_setting("persona.michael", "on" if on == "1" else "off",
+                   actor=user["name"], surface="web")
+    request.session["flash"] = ("Michael is doing the bit again."
+                                if on == "1" else
+                                "Michael will just tell you what happened.")
+    return RedirectResponse("/settings", status_code=303)
 
 
 @router.post("/settings/kill")

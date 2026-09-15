@@ -201,6 +201,7 @@ def recent_audit(limit: int = 50) -> list[dict]:
 def seed_settings() -> None:
     defaults = {
         "kill_switch": "off",
+        "persona.michael": "on",
         "posts_per_day": str(config.POSTS_PER_DAY),
         **{f"autonomy.{a}": v for a, v in config.DEFAULT_AUTONOMY.items()},
     }

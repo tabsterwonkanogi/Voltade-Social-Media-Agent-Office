@@ -35,10 +35,23 @@ NAME_FIXES = {
 }
 
 AUDIENCE = (
-    "Owners of small and medium businesses in Singapore. They are not in the AI "
-    "industry and do not care about AI discourse. They care about their own "
-    "situation: staff time, missed messages, work that does not get done."
+    "A top of funnel account. SME owners, second generation founders, and "
+    "people who could become Voltade customers. The aim is reach, views, "
+    "followers and growth, so the content does not have to be only about our "
+    "exact buyer. They are not in the AI industry and do not care about AI "
+    "discourse. They care about their own situation: staff time, missed "
+    "messages, work that does not get done."
 )
+
+# Where the CEO says what he thinks, if an agent needs the source.
+PODCAST = "https://www.youtube.com/@TheLeonardandVoltyShow"
+
+# People an agent may write for, and what they are.
+PEOPLE = {
+    "Leonard": "CEO",
+    "Yash": "Product Manager",
+    "Beatrice": "Marketing Intern",
+}
 
 VOICE = """
 Write like a person who runs a business, not like a brand account.
@@ -60,16 +73,35 @@ ORPHAN_WORDS = {"a", "an", "the", "to", "of", "in", "on", "for", "and", "or", "i
 # ---------------------------------------------------------------- what we post
 
 PILLARS = [
-    ("build_in_public", "What we are building this week and what broke."),
-    ("customer_problem", "A real problem an SME owner has, named plainly."),
-    ("how_it_works", "One concrete mechanism explained without jargon."),
-    ("proof", "Something that actually happened, with a number or a screenshot."),
-    ("point_of_view", "A position on how small businesses should adopt AI."),
+    ("education",
+     "AI tips, jargon, news and tools. Position Voltade as the people you "
+     "think of first when you want AI agents or custom AI for an SME. The "
+     "tone is that you should know this by now: AI keeps developing and "
+     "keeping up matters."),
+    ("opinions",
+     "Contrarian takes that cut through the AI noise, always about AI for "
+     "businesses rather than AI in general."),
+    ("normalisation",
+     "For the middle aged and older, and for anyone who thinks they have no "
+     "use case. Drowns out the accounts saying AI is only harmful. Used "
+     "properly it is genuinely useful to a business, especially in CRM."),
+]
+
+# What Voltade actually believes. An opinion post argues one of these.
+OPINIONS = [
+    "AI is just a tool. The human is what makes it work well.",
+    "AI is useful for non-tech companies and non-tech people too.",
+    "AI should be integrated into every company.",
+    "Companies that do not use AI in their workflows will fall behind.",
+    "AI cannot replace human roles, but it is reframing how the work is done.",
+    "AI agents are the new employees, and they are partners, not replacements.",
 ]
 
 PLATFORMS = ["linkedin", "instagram", "tiktok", "facebook", "x", "youtube"]
 
-POSTS_PER_DAY = 3
+POSTS_PER_DAY_MIN = 3
+POSTS_PER_DAY_MAX = 5
+POSTS_PER_DAY = POSTS_PER_DAY_MAX      # the ceiling every check uses
 REVIEW_BUDGET_MINUTES = 20
 DRAFT_EXPIRY_HOURS = 72
 
@@ -124,3 +156,19 @@ FONTS = {
 
 MODEL = "claude-opus-5"
 DAILY_TOKEN_CEILING = 4_000_000
+
+
+# ---------------------------------------------------------------- persona
+
+# Michael talks like Michael Scott. It is a costume, not a licence: it never
+# changes what he decides, only how he says it, and it comes off instantly
+# from Settings without touching a prompt file.
+MICHAEL_PERSONA = """
+Talk like Michael Scott from The Office. Witty, a little goofy, fond of a
+declaration. Study how he actually speaks: he over-commits to a bit, he
+explains the joke, he means well.
+
+Hard limit: never let it interfere with the work. The brief itself stays
+precise and the volume rules still bind. If a choice is between being funny
+and being clear, be clear.
+"""

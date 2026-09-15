@@ -18,6 +18,29 @@
 
 <div class="row">
   <div>
+    <div class="name">Michael's voice</div>
+    <div class="role">He talks like Michael Scott. It never changes what he
+      decides, only how he says it. Turn it off and he just tells you what
+      happened.</div>
+  </div>
+  <form class="inline" method="post" action="/settings/persona">
+    <input type="hidden" name="on" value="{{ '0' if persona else '1' }}">
+    <button type="submit" class="{{ 'yes' if persona else 'no' }}">
+      {{ 'doing the bit' if persona else 'straight' }}
+    </button>
+  </form>
+</div>
+
+<div class="row">
+  <div>
+    <div class="name">How much gets made</div>
+    <div class="role">{{ volume[0] }} to {{ volume[1] }} posts a day.
+      {{ volume[1] }} is a ceiling, not a target.</div>
+  </div>
+</div>
+
+<div class="row">
+  <div>
     <div class="name">Kelly's rate limit</div>
     <div class="role">{{ rate }} replies an hour, maximum. A loop cannot spray your name.</div>
   </div>
