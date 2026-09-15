@@ -1,0 +1,41 @@
+{% extends "base.html" %}{% block title %}The floor{% endblock %}
+{% block body %}
+
+<div id="floorwrap">
+  <canvas id="floor" aria-label="The office floor"></canvas>
+  <p id="legend" class="sub">
+    Nobody moves unless something happened. A figure walks only when the
+    trail says work changed hands.
+  </p>
+</div>
+
+<aside id="panel" hidden>
+  <header>
+    <div>
+      <h2 id="p-name"></h2>
+      <p id="p-role" class="sub"></p>
+    </div>
+    <button id="p-close" class="no" aria-label="Close">Close</button>
+  </header>
+
+  <div id="p-status" class="statusline"></div>
+
+  <section>
+    <h3>Today</h3>
+    <div id="p-today" class="today"></div>
+    <p id="p-last" class="lastline"></p>
+  </section>
+
+  <section>
+    <h3>Tell them what to do</h3>
+    <div id="p-chat" class="chat" aria-live="polite"></div>
+    <form id="p-form" autocomplete="off">
+      <textarea id="p-msg" rows="2" placeholder="Write an instruction"></textarea>
+      <button class="yes" type="submit" id="p-send">Send</button>
+    </form>
+    <p id="p-note" class="sub"></p>
+  </section>
+</aside>
+
+<script src="/static/floor.js"></script>
+{% endblock %}

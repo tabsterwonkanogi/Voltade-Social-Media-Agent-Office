@@ -19,7 +19,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from . import auth, blotato, config, db, scheduler, web  # noqa: E402
+from . import auth, blotato, config, db, floor, scheduler, web  # noqa: E402
 
 logging.basicConfig(
     level=logging.INFO,
@@ -100,4 +100,5 @@ def health():
     return JSONResponse(body, status_code=503 if stalled else 200)
 
 
+app.include_router(floor.router)
 app.include_router(web.router)

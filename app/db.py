@@ -143,6 +143,17 @@ CREATE TABLE IF NOT EXISTS notes (
 );
 CREATE INDEX IF NOT EXISTS idx_notes_kind ON notes(kind, used, created_at);
 
+CREATE TABLE IF NOT EXISTS chats (
+    id      TEXT PRIMARY KEY,
+    agent   TEXT NOT NULL,
+    role    TEXT NOT NULL,
+    text    TEXT NOT NULL,
+    at      TEXT NOT NULL,
+    run_id  TEXT,
+    actor   TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_chats_agent ON chats(agent, at);
+
 CREATE TABLE IF NOT EXISTS users (
     id            TEXT PRIMARY KEY,
     name          TEXT NOT NULL,
@@ -495,3 +506,67 @@ def mark_replied(comment_id: str, *, actor: str, surface: str) -> None:
             (now(), comment_id))
         audit("comment.replied", actor=actor, surface=surface,
               target=comment_id, conn=conn)
+
+
+# ---------------------------------------------------------------- chat
+
+def say(agent: str, role: str, text: str, *, actor: str | None = None,
+        run_id: str | None = None) -> str:
+    """One line of conversation with an agent. role is 'user' or 'agent'."""
+    msg_id = new_id("msg")
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO chats (id, agent, role, text, at, run_id, actor) "
+            "VALUES (?,?,?,?,?,?,?)",
+            (msg_id, agent, role, text, now(), run_id, actor))
+    return msg_id
+
+
+def conversation(agent: str, limit: int = 40) -> list[dict]:
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM chats WHERE agent = ? ORDER BY at DESC, rowid DESC "
+            "LIMIT ?", (agent, limit)).fetchall()
+    return [dict(r) for r in reversed(rows)]
+
+
+def audit_since(minutes: int = 30, limit: int = 60) -> list[dict]:
+    """Recent decisions and handoffs, for the floor to animate."""
+    cutoff = (datetime.now(timezone.utc)
+              - timedelta(minutes=minutes)).replace(microsecond=0).isoformat()
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM audit WHERE at >= ? ORDER BY id DESC LIMIT ?",
+            (cutoff, limit)).fetchall()
+    return [dict(r) for r in rows]
+
+
+def day_start() -> str:
+    """Midnight in Singapore, expressed in UTC, as stored timestamps are.
+
+    Comparing a UTC timestamp against a local date string looks fine all
+    afternoon and breaks every night: between midnight and 8am, everything
+    that happened today carries yesterday's UTC date, so every counter reads
+    zero while the agents are visibly working.
+    """
+    here = datetime.now(config.TZ).replace(hour=0, minute=0, second=0,
+                                           microsecond=0)
+    return here.astimezone(timezone.utc).isoformat()
+
+
+def runs_today(agent: str) -> list[dict]:
+    today = day_start()
+    with connect() as conn:
+        rows = conn.execute(
+            "SELECT * FROM runs WHERE agent = ? AND started_at >= ? "
+            "ORDER BY started_at DESC", (agent, today)).fetchall()
+    return [dict(r) for r in rows]
+
+
+def open_run(agent: str) -> dict | None:
+    """A run that started and has not ended. This is 'working right now'."""
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM runs WHERE agent = ? AND ended_at IS NULL "
+            "ORDER BY started_at DESC LIMIT 1", (agent,)).fetchone()
+    return dict(row) if row else None

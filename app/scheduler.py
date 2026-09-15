@@ -117,8 +117,9 @@ def digest() -> None:
     """One message a day. What was made, what is waiting, what goes out."""
     pending = db.list_posts(status="pending", limit=100)
     approved = db.list_posts(status="approved", limit=100)
+    since = db.day_start()
     published = [p for p in db.list_posts(status="published", limit=100)
-                 if p["published_at"] and p["published_at"] >= db.now()[:10]]
+                 if p["published_at"] and p["published_at"] >= since]
 
     lines = [f"Voltade agent office, {db.local(db.now()):%a %d %b}", ""]
     lines.append(f"published today: {len(published)}")

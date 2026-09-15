@@ -24,6 +24,7 @@
 
 {% if user %}
 <nav class="tabs">
+  <a href="/floor" class="{{ 'on' if tab == 'floor' }}">Floor</a>
   <a href="/" class="{{ 'on' if tab == 'queue' }}">Queue{% if pending_count %} <b>{{ pending_count }}</b>{% endif %}</a>
   <a href="/calendar" class="{{ 'on' if tab == 'calendar' }}">Calendar</a>
   <a href="/agents" class="{{ 'on' if tab == 'agents' }}">Agents</a>
